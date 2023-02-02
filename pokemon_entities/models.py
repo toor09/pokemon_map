@@ -10,8 +10,9 @@ class Pokemon(models.Model):
 
 
 class PokemonEntity(models.Model):
-    latitude = models.FloatField(blank=True, null=True)
-    longitude = models.FloatField(blank=True, null=True)
+    latitude = models.FloatField(blank=True, default=0)
+    longitude = models.FloatField(blank=True, default=0)
+    pokemon = models.ForeignKey(Pokemon, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f'({self.latitude}{self.longitude})'
+        return f'{self.pokemon}: ({self.latitude} , {self.longitude})'
