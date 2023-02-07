@@ -23,6 +23,32 @@
 ```sh
 pip install -r requirements.txt
 ```
+Либо использовать `poetry`:
+
+Установите актуальную версию poetry в `UNIX`-подобных дистрибутивах с помощью команды:
+```sh
+curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python3 -
+```
+или в `Windows Powershell`:
+```
+(Invoke-WebRequest -Uri https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py -UseBasicParsing).Content | python -
+```
+Добавьте к переменной окружения `$PATH` команду poetry:
+```sh
+source $HOME/.poetry/bin
+```
+Установите виртуальное окружение в директории с проектом командой:
+```sh
+poetry config virtualenvs.in-project true
+```
+Установите все зависимости (для установки без dev зависимостей можно добавить аргумент `--no-dev`):
+```sh
+poetry install
+```
+- Активируйте виртуальное окружение командой: 
+```sh
+source .venv/bin/activate
+```
 
 Запустите разработческий сервер
 
@@ -37,6 +63,19 @@ python3 manage.py runserver
 Доступны 2 переменные:
 - `DEBUG` — дебаг-режим. Поставьте True, чтобы увидеть отладочную информацию в случае ошибки.
 - `SECRET_KEY` — секретный ключ проекта
+
+Для генерации значения переменной окружения `SECRET_KEY` можно воспользоваться функцией встроенного модуля `secrets`:
+
+```python3
+import secrets
+secret_token = secrets.token_urlsafe(nbytes=64)
+```
+
+## Запуск линтеров
+
+```sh
+isort . && flake8 . && mypy .
+```
 
 ## Цели проекта
 
