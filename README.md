@@ -45,7 +45,7 @@ poetry config virtualenvs.in-project true
 ```sh
 poetry install
 ```
-- Активируйте виртуальное окружение командой: 
+Активируйте виртуальное окружение командой: 
 ```sh
 source .venv/bin/activate
 ```
