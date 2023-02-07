@@ -80,12 +80,14 @@ target/
 
 # IDE
 .idea/
+.vscode/
 
 ### Django ###
 *.log
 *.pot
 *.pyc
 __pycache__/
+.mypy_cache/
 local_settings.py
 
 .env

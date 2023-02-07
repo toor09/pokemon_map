@@ -1,9 +1,10 @@
-import folium
+from typing import Union
 
+import folium
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, render
 
-from .models import PokemonEntity, Pokemon
-
+from .models import Pokemon, PokemonEntity
 
 MOSCOW_CENTER = [55.751244, 37.618423]
 DEFAULT_IMAGE_URL = (
@@ -13,7 +14,16 @@ DEFAULT_IMAGE_URL = (
 )
 
 
-def add_pokemon(folium_map, lat, lon, image_url=DEFAULT_IMAGE_URL):
+def _get_photo_uri(request: HttpRequest, photo_url: Union[Pokemon, PokemonEntity]) -> str:
+    return request.build_absolute_uri(photo_url.url) if photo_url else DEFAULT_IMAGE_URL
+
+
+def add_pokemon(
+        folium_map: folium,
+        lat: float,
+        lon: float,
+        image_url: str = DEFAULT_IMAGE_URL
+) -> None:
     icon = folium.features.CustomIcon(
         image_url,
         icon_size=(50, 50),
@@ -26,18 +36,21 @@ def add_pokemon(folium_map, lat, lon, image_url=DEFAULT_IMAGE_URL):
     ).add_to(folium_map)
 
 
-def show_all_pokemons(request):
+def show_all_pokemons(request: HttpRequest) -> HttpResponse:
     folium_map = folium.Map(location=MOSCOW_CENTER, zoom_start=12)
     pokemon_entities = PokemonEntity.objects.select_related('pokemon')
 
-    pokemons = [pokemon_entity for pokemon_entity in pokemon_entities if pokemon_entity.pokemon.photo and pokemon_entity.is_active]
+    pokemons = [
+        pokemon_entity for pokemon_entity in pokemon_entities
+        if pokemon_entity.pokemon.photo and pokemon_entity.is_active
+    ]
 
     for pokemon in pokemons:
         add_pokemon(
             folium_map=folium_map,
             lat=pokemon.latitude,
             lon=pokemon.longitude,
-            image_url=request.build_absolute_uri(pokemon.pokemon.photo.url)
+            image_url=_get_photo_uri(request=request, photo_url=pokemon.pokemon.photo)
         )
 
     pokemons = Pokemon.objects.all()
@@ -45,7 +58,7 @@ def show_all_pokemons(request):
     for pokemon in pokemons:
         pokemons_on_page.append({
             'pokemon_id': pokemon.pk,
-            'img_url': pokemon.photo.url if pokemon.photo else DEFAULT_IMAGE_URL,
+            'img_url': _get_photo_uri(request=request, photo_url=pokemon.photo),
             'title_ru': pokemon.title,
         })
 
@@ -55,13 +68,13 @@ def show_all_pokemons(request):
     })
 
 
-def show_pokemon(request, pokemon_id):
+def show_pokemon(request: HttpRequest, pokemon_id: int) -> HttpRequest:
     folium_map = folium.Map(location=MOSCOW_CENTER, zoom_start=12)
     pokemon = get_object_or_404(Pokemon, id=pokemon_id)
 
     current_pokemon = {
         'pokemon_id': pokemon.id,
-        'img_url': request.build_absolute_uri(pokemon.photo.url) if pokemon.photo else DEFAULT_IMAGE_URL,
+        'img_url': _get_photo_uri(request=request, photo_url=pokemon.photo),
         'title_ru': pokemon.title,
         'title_en': pokemon.title_en,
         'title_jp': pokemon.title_jp,
@@ -70,7 +83,7 @@ def show_pokemon(request, pokemon_id):
     if pokemon.previous_evolution:
         current_pokemon['previous_evolution'] = {
             'pokemon_id': pokemon.previous_evolution.id,
-            'img_url': request.build_absolute_uri(pokemon.previous_evolution.photo.url) if pokemon.previous_evolution.photo else DEFAULT_IMAGE_URL,
+            'img_url': _get_photo_uri(request=request, photo_url=pokemon.previous_evolution.photo),
             'title_ru': pokemon.previous_evolution.title,
         }
     evolution = pokemon.next_evolutions.first()
@@ -78,18 +91,21 @@ def show_pokemon(request, pokemon_id):
         current_pokemon['next_evolution'] = {
             'pokemon_id': evolution.id,
             'title_ru': evolution.title,
-            'img_url': request.build_absolute_uri(evolution.photo.url) if evolution.photo else DEFAULT_IMAGE_URL,
+            'img_url': _get_photo_uri(request=request, photo_url=evolution.photo),
         }
 
     pokemon_entities = PokemonEntity.objects.filter(pokemon__title=pokemon.title)
-    pokemons = [pokemon_entity for pokemon_entity in pokemon_entities if pokemon_entity.pokemon.photo and pokemon_entity.is_active]
+    pokemons = [
+        pokemon_entity for pokemon_entity in pokemon_entities
+        if pokemon_entity.pokemon.photo and pokemon_entity.is_active
+    ]
 
     for pokemon in pokemons:
         add_pokemon(
             folium_map=folium_map,
             lat=pokemon.latitude,
             lon=pokemon.longitude,
-            image_url=request.build_absolute_uri(pokemon.pokemon.photo.url)
+            image_url=_get_photo_uri(request=request, photo_url=pokemon.pokemon.photo),
         )
 
     return render(request, 'pokemon.html', context={
