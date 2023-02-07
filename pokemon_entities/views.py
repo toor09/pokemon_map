@@ -67,9 +67,22 @@ def show_pokemon(request, pokemon_id):
         'title_jp': pokemon.title_jp,
         'description': pokemon.description,
     }
+    if pokemon.previous_evolution:
+        current_pokemon['previous_evolution'] = {
+            'pokemon_id': pokemon.previous_evolution.id,
+            'img_url': request.build_absolute_uri(pokemon.previous_evolution.photo.url) if pokemon.photo else DEFAULT_IMAGE_URL,
+            'title_ru': pokemon.previous_evolution.title,
+        }
+    evolution = pokemon.next_evolutions.first()
+    if evolution:
+        current_pokemon['next_evolution'] = {
+            'pokemon_id': evolution.id,
+            'title_ru': evolution.title,
+            'img_url': request.build_absolute_uri(evolution.photo.url)
+        }
 
     pokemon_entities = PokemonEntity.objects.filter(pokemon__title=pokemon.title)
-    pokemons = [pokemon_entity for pokemon_entity in pokemon_entities if pokemon_entity.pokemon.photo]
+    pokemons = [pokemon_entity for pokemon_entity in pokemon_entities if pokemon_entity.pokemon.photo and pokemon_entity.is_active]
 
     for pokemon in pokemons:
         add_pokemon(

@@ -8,13 +8,20 @@ class Pokemon(models.Model):
     title_jp = models.CharField(max_length=200, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     photo = models.ImageField(upload_to='pokemons', blank=True, null=True)
+    previous_evolution = models.ForeignKey(
+        'self',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='next_evolutions',
+    )
 
     def __str__(self):
-        return self.title
+        return f'<{self.pk}> {self.title}'
 
 
 class PokemonEntity(models.Model):
-    pokemon = models.ForeignKey(Pokemon, on_delete=models.CASCADE)
+    pokemon = models.ForeignKey(Pokemon, on_delete=models.CASCADE, related_name='entities')
     latitude = models.FloatField(blank=True, default=0)
     longitude = models.FloatField(blank=True, default=0)
     appeared_at = models.DateTimeField(blank=True, null=True)
