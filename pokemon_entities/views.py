@@ -94,7 +94,7 @@ def show_pokemon(request: HttpRequest, pokemon_id: int) -> HttpRequest:
             'img_url': _get_photo_uri(request=request, photo_url=evolution.photo),
         }
 
-    pokemon_entities = PokemonEntity.objects.filter(pokemon__title=pokemon.title)
+    pokemon_entities = PokemonEntity.objects.filter(pokemon__title=pokemon)
     pokemons = [
         pokemon_entity for pokemon_entity in pokemon_entities
         if pokemon_entity.pokemon.photo and pokemon_entity.is_active
