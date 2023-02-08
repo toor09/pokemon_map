@@ -1,4 +1,4 @@
-from django.core.validators import MaxValueValidator, MinValueValidator
+from django.core.validators import MinValueValidator
 from django.db import models  # noqa F401
 from django.utils.timezone import localtime
 
@@ -42,46 +42,31 @@ class PokemonEntity(models.Model):
         verbose_name='Уровень',
         validators=[
             MinValueValidator(0),
-            MaxValueValidator(100)
         ],
-        blank=True,
-        default=0
     )
     health = models.IntegerField(
         verbose_name='Здоровье',
         validators=[
             MinValueValidator(0),
-            MaxValueValidator(100)
         ],
-        blank=True,
-        default=0
     )
     strength = models.IntegerField(
         verbose_name='Сила',
         validators=[
             MinValueValidator(0),
-            MaxValueValidator(100)
         ],
-        blank=True,
-        default=0
     )
     defence = models.IntegerField(
         verbose_name='Защита',
         validators=[
-            MinValueValidator(0),
-            MaxValueValidator(100)
+            MinValueValidator(0)
         ],
-        blank=True,
-        default=0
     )
     stamina = models.IntegerField(
         verbose_name='Выносливость',
         validators=[
             MinValueValidator(0),
-            MaxValueValidator(100)
         ],
-        blank=True,
-        default=0
     )
 
     @property
