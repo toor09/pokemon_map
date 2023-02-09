@@ -2,6 +2,13 @@ from django.core.validators import MinValueValidator
 from django.db import models  # noqa F401
 
 
+class PokemonElementType(models.Model):
+    title = models.CharField(max_length=50, verbose_name='Тип стихии')
+
+    def __str__(self) -> str:
+        return f'<{self.pk}> {self.title}'
+
+
 class Pokemon(models.Model):
     title = models.CharField(max_length=200, verbose_name='Имя (RU)')
     title_en = models.CharField(max_length=200, verbose_name='Имя (EN)', blank=True, null=True)
@@ -12,6 +19,11 @@ class Pokemon(models.Model):
         verbose_name='Фотокарточка',
         blank=True,
         null=True
+    )
+    element_type = models.ManyToManyField(
+        PokemonElementType,
+        verbose_name='Тип стихии',
+        related_name='element_types',
     )
     previous_evolution = models.ForeignKey(
         'self',
