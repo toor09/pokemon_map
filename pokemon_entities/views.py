@@ -3,6 +3,7 @@ from typing import Union
 import folium
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, render
+from django.utils.timezone import localtime
 
 from .models import Pokemon, PokemonEntity
 
@@ -38,11 +39,15 @@ def add_pokemon(
 
 def show_all_pokemons(request: HttpRequest) -> HttpResponse:
     folium_map = folium.Map(location=MOSCOW_CENTER, zoom_start=12)
-    pokemon_entities = PokemonEntity.objects.select_related('pokemon')
+    now = localtime()
+    pokemon_entities = PokemonEntity.objects.select_related('pokemon').filter(
+        disappeared_at__gte=now,
+        appeared_at__lte=now,
+    )
 
     pokemons = [
         pokemon_entity for pokemon_entity in pokemon_entities
-        if pokemon_entity.pokemon.photo and pokemon_entity.is_active
+        if pokemon_entity.pokemon.photo
     ]
 
     for pokemon in pokemons:
@@ -93,11 +98,14 @@ def show_pokemon(request: HttpRequest, pokemon_id: int) -> HttpRequest:
             'title_ru': evolution.title,
             'img_url': _get_photo_uri(request=request, photo_url=evolution.photo),
         }
-
-    pokemon_entities = PokemonEntity.objects.filter(pokemon__title=pokemon)
+    now = localtime()
+    pokemon_entities = PokemonEntity.objects.filter(
+        disappeared_at__gte=now,
+        appeared_at__lte=now,
+    )
     pokemons = [
         pokemon_entity for pokemon_entity in pokemon_entities
-        if pokemon_entity.pokemon.photo and pokemon_entity.is_active
+        if pokemon_entity.pokemon.photo
     ]
 
     for pokemon in pokemons:

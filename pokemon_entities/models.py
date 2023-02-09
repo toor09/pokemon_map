@@ -1,6 +1,5 @@
 from django.core.validators import MinValueValidator
 from django.db import models  # noqa F401
-from django.utils.timezone import localtime
 
 
 class Pokemon(models.Model):
@@ -36,8 +35,8 @@ class PokemonEntity(models.Model):
     )
     latitude = models.FloatField(verbose_name='Широта')
     longitude = models.FloatField(verbose_name='Долгота')
-    appeared_at = models.DateTimeField(verbose_name='Появится в', blank=True, null=True)
-    disappeared_at = models.DateTimeField(verbose_name='Исчезнет в', blank=True, null=True)
+    appeared_at = models.DateTimeField(verbose_name='Появится в')
+    disappeared_at = models.DateTimeField(verbose_name='Исчезнет в')
     level = models.IntegerField(
         verbose_name='Уровень',
         validators=[
@@ -68,27 +67,6 @@ class PokemonEntity(models.Model):
             MinValueValidator(0),
         ],
     )
-
-    @property
-    def is_active(self) -> bool:
-        now = localtime()
-        appeared_at = localtime(self.appeared_at)
-        disappeared_at = localtime(self.disappeared_at)
-
-        if self.appeared_at and self.disappeared_at:
-            if disappeared_at >= now >= appeared_at:
-                return True
-            return False
-
-        elif not self.appeared_at and not self.disappeared_at:
-            return True
-
-        elif self.appeared_at and appeared_at <= now:
-            return True
-
-        elif self.disappeared_at and disappeared_at >= now:
-            return True
-        return False
 
     def __str__(self) -> str:
         return f'{self.pk} {self.pokemon}: ({self.latitude} , {self.longitude})'
