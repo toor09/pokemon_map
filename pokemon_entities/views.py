@@ -23,6 +23,7 @@ def add_pokemon(
         folium_map: folium,
         lat: float,
         lon: float,
+        specs: dict,
         image_url: str = DEFAULT_IMAGE_URL
 ) -> None:
     icon = folium.features.CustomIcon(
@@ -34,6 +35,7 @@ def add_pokemon(
         # Warning! `tooltip` attribute is disabled intentionally
         # to fix strange folium cyrillic encoding bug
         icon=icon,
+        popup=folium.Popup("".join([f'{spec}:{value} ' for spec, value in specs.items()])),
     ).add_to(folium_map)
 
 
@@ -55,6 +57,7 @@ def show_all_pokemons(request: HttpRequest) -> HttpResponse:
             folium_map=folium_map,
             lat=pokemon.latitude,
             lon=pokemon.longitude,
+            specs=pokemon.get_specs(),
             image_url=_get_photo_uri(request=request, photo_url=pokemon.pokemon.photo)
         )
 
@@ -113,6 +116,7 @@ def show_pokemon(request: HttpRequest, pokemon_id: int) -> HttpRequest:
             folium_map=folium_map,
             lat=pokemon.latitude,
             lon=pokemon.longitude,
+            specs=pokemon.get_specs(),
             image_url=_get_photo_uri(request=request, photo_url=pokemon.pokemon.photo),
         )
 

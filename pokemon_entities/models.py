@@ -80,5 +80,14 @@ class PokemonEntity(models.Model):
         ],
     )
 
+    def get_specs(self) -> dict:
+        return {
+            'Уровень': self.level,
+            'Здоровье': self.health,
+            'Сила': self.strength,
+            'Защита': self.defence,
+            'Выносливость': self.stamina
+        }
+
     def __str__(self) -> str:
         return f'{self.pk} {self.pokemon}: ({self.latitude} , {self.longitude})'
