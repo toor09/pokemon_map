@@ -77,6 +77,7 @@ def show_all_pokemons(request: HttpRequest) -> HttpResponse:
 
 
 def show_pokemon(request: HttpRequest, pokemon_id: int) -> HttpRequest:
+    from django.db import connection
     folium_map = folium.Map(location=MOSCOW_CENTER, zoom_start=12)
     pokemon = get_object_or_404(Pokemon, id=pokemon_id)
 
@@ -88,6 +89,15 @@ def show_pokemon(request: HttpRequest, pokemon_id: int) -> HttpRequest:
         'title_jp': pokemon.title_jp,
         'description': pokemon.description,
     }
+    if pokemon.element_type:
+        current_pokemon['element_type'] = []
+        for element in pokemon.element_type.all():
+            current_pokemon['element_type'].append(
+                {
+                    'title': element.title,
+                    'img': _get_photo_uri(request=request, photo_url=element.img),
+                }
+            )
     if pokemon.previous_evolution:
         current_pokemon['previous_evolution'] = {
             'pokemon_id': pokemon.previous_evolution.id,
@@ -119,7 +129,8 @@ def show_pokemon(request: HttpRequest, pokemon_id: int) -> HttpRequest:
             specs=pokemon.get_specs(),
             image_url=_get_photo_uri(request=request, photo_url=pokemon.pokemon.photo),
         )
-
+    print(connection.queries)
+    print(len(connection.queries))
     return render(request, 'pokemon.html', context={
         'map': folium_map._repr_html_(), 'pokemon': current_pokemon
     })

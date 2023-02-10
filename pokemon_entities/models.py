@@ -4,6 +4,12 @@ from django.db import models  # noqa F401
 
 class PokemonElementType(models.Model):
     title = models.CharField(max_length=50, verbose_name='Тип стихии')
+    img = models.ImageField(
+        upload_to='element_icons',
+        verbose_name='Иконка стихии',
+        blank=True,
+        null=True
+    )
 
     def __str__(self) -> str:
         return f'<{self.pk}> {self.title}'
