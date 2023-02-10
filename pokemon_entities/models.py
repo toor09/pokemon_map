@@ -10,9 +10,15 @@ class PokemonElementType(models.Model):
         blank=True,
         null=True
     )
+    strong_against = models.ManyToManyField(
+        'self',
+        symmetrical=False,
+        verbose_name='Cтихии сильны против',
+        related_name='strong_against_types',
+    )
 
     def __str__(self) -> str:
-        return f'<{self.pk}> {self.title}'
+        return f'{self.title}'
 
 
 class Pokemon(models.Model):
